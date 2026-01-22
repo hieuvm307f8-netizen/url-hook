@@ -1,4 +1,3 @@
-import React from 'react'
 import { useParams } from 'react-router-dom';
 
 const Order = () => {
@@ -10,4 +9,4 @@ const Order = () => {
   )
 }
 
-export default Order
+export default Order;

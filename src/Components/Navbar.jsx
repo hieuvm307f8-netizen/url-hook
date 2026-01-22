@@ -1,34 +1,26 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../stores/authStore";
 
-const links = [
-  {
-    id: 1,
-    name: "Trang chủ",
-    path: "/",
-  },
-  {
-    id: 2,
-    name: "Danh sách phim",
-    path: "/movies",
-  },
-  {
-    id: 3,
-    name: "Trang chủ",
-    path: "/filter-movies",
-  },
-];
-
 const Navbar = () => {
-  const auth = useAuth((state) => state.user);
-  const updateUser = useAuth((state) => state.updateUser);  
+  const { user, isAuthenticated, logOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logOut();
+    navigate("/login");
+  };
+
   return (
-    <nav>
-      <h2>Hello, {auth.name}</h2>
-      <button onClick={updateUser}>Login</button>
-      <Link to={"/"}>Trang chủ</Link> |
-      <Link to={"/movies"}>Danh sách phim</Link>|
-      <Link to={"/filter-movies"}>Thể loại</Link>
+    <nav style={{ padding: "10px", borderBottom: "1px solid #ccc" }}>
+      <h2>Hello, {isAuthenticated ? user?.name : "Guest"}</h2>
+      <Link to={"/"}>Trang chủ</Link> | 
+      <Link to={"/movies"}> Danh sách phim</Link> | 
+      
+      {isAuthenticated ? (
+        <button onClick={handleLogout} style={{ marginLeft: "10px" }}>Logout</button>
+      ) : (
+        <Link to="/login" style={{ marginLeft: "10px" }}>Login</Link>
+      )}
     </nav>
   );
 };

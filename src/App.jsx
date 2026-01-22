@@ -32,9 +32,9 @@ function App() {
           <Route element={<UserLayout />} path="/user">
             <Route index element={<Dashboard />} />
             <Route path="order/:productId" element={<Order />} />
-            <Route element={<RoleMiddleware />}>
+            {/* <Route element={<RoleMiddleware />}>
               <Route path="sales" element={<Sales />} />
-            </Route>
+            </Route> */}
           </Route>
         </Route>
       </Routes>

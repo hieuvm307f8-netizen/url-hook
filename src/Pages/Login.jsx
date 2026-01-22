@@ -1,48 +1,58 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "../stores/authStore";
 
 const Login = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const login = useAuth((state) => state.login); // Lấy hàm login từ store
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const continuePath = searchParams.get("continue") ?? "/";
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if(email === 'admin@gmail.com' && password === '123456') {
-        console.log(email, password);
-        
-        localStorage.setItem("isAuth", true);
-        navigate(continuePath);
+    setError("");
+
+    try {
+      const authRes = await fetch("https://api.escuelajs.co/api/v1/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!authRes.ok) throw new Error("Email hoặc mật khẩu không đúng!");
+      const { access_token } = await authRes.json();
+
+      const profileRes = await fetch("https://api.escuelajs.co/api/v1/auth/profile", {
+        headers: { Authorization: `Bearer ${access_token}` },
+      });
+      const userData = await profileRes.json();
+
+      login(userData, access_token);
+      
+      navigate(continuePath);
+    } catch (err) {
+      setError(err.message);
     }
   };
 
   return (
     <div>
       <h1>Login Page</h1>
-      <form action="" onSubmit={handleSubmit}>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+      <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="username">email: </label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            onChange={(e) => setEmail(e.target.value)}
-          />
+          <label>Email: </label>
+          <input type="email" onChange={(e) => setEmail(e.target.value)} required />
         </div>
-
         <div>
-          <label htmlFor="password">Password: </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <label>Password: </label>
+          <input type="password" onChange={(e) => setPassword(e.target.value)} required />
         </div>
-
         <button type="submit">Login</button>
       </form>
     </div>

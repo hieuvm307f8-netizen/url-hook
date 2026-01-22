@@ -4,19 +4,28 @@
 // không return JSX (Không phải component)
 
 import { create } from "zustand";
-export const useAuth = create((set) => {
-  return {
-    user: {
-      name: "Guest",
-    },
-    isAuthenticated: false,
-    updateUser: () => set({ user: { name: "Minh Hieu" } }),
-    logOut: () => set({ user: { name: "Guest" } }),
-    todos: [],
-    fetchTodos: async () => {
-      const res = await fetch("https://jsonplaceholder.typicode.com/todos");
-      const data = await res.json();
-      set({ todos: data });
-    },
-  };
-});
+import { persist } from "zustand/middleware";
+export const useAuth = create(
+  persist(
+    (set) => ({
+      user: null,
+      isAuthenticated: false,
+      accessToken: null,
+
+      login: (userData, token) => set({ 
+        user: userData, 
+        isAuthenticated: true, 
+        accessToken: token 
+      }),
+
+      logOut: () => set({ 
+        user: null, 
+        isAuthenticated: false, 
+        accessToken: null 
+      }),
+    }),
+    {
+      name: "auth-storage",
+    }
+  )
+);
